@@ -28,11 +28,19 @@ namespace LandonApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
-            services.AddControllers(options =>
+           /* services.AddMvc(options =>
             {
                 options.Filters.Add<JsonExceptionFilter>();
-            });
+                options.Filters.Add<RequireHttpsOrCloseAttribute>();
+            });*/
+
+            //controllers
+            services.AddControllers();
+             services.AddControllers(options =>
+             {
+                 options.Filters.Add<JsonExceptionFilter>();
+                 options.Filters.Add<RequireHttpsOrCloseAttribute>();
+             });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "LandonApi", Version = "v1" });
@@ -47,6 +55,23 @@ namespace LandonApi
                 options.AssumeDefaultVersionWhenUnspecified = true;
                 options.ApiVersionSelector = new CurrentImplementationApiVersionSelector(options);
             });
+            /*
+                “CORS” stands for Cross-Origin Resource Sharing. 
+                It allows you to make requests from one website to another website in the browser, 
+                which is normally prohibited by another browser policy called the Same-Origin Policy (SOP).
+            */
+            services.AddCors(options =>
+            {
+                /*
+                    dp you use any police name and build policy also can be use browse request 
+                    make origin by using policy=>policy.WithOrigins("https://example.com") method here 
+                    testing purpose use
+                    Alloany origin method.
+                */
+                options.AddPolicy("AllowMyApp",policy=>policy.AllowAnyOrigin());
+
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,19 +85,29 @@ namespace LandonApi
             }
             else
             {
+                //use hstc to secure api
+                /*
+                    Per OWASP, HTTP Strict Transport Security (HSTS) is an 
+                    opt-in security enhancement that's specified by a
+                    web app through the use of a response header. 
+                    When a browser that supports HSTS receives this header: 
+                    The browser stores configuration for the domain that prevents sending any communication
+                    over HTTP. 
+                */
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            app.UseHttpsRedirection();// get clinet request by http it redirect request to https
            
             app.UseRouting();
-
+            app.UseCors("AllowMyApp");
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+            //app.UseMvc();
             
         }
     }
