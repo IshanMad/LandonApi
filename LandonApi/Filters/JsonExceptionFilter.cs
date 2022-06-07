@@ -2,13 +2,14 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Hosting;
 
 namespace LandonApi.Filters
 {
     public class JsonExceptionFilter : IExceptionFilter
     {
-        private readonly IHostingEnvironment _env;
-        public JsonExceptionFilter(IHostingEnvironment env)
+        private readonly IWebHostEnvironment _env;
+        public JsonExceptionFilter(IWebHostEnvironment env)
         {
             _env = env; 
         }

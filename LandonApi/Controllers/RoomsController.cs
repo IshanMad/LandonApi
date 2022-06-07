@@ -1,16 +1,40 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LandonApi.Data;
+using LandonApi.Models;
+using LandonApi.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Threading.Tasks;
 
 namespace LandonApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //add api version
+    [ApiVersion("1.0")]
     public class RoomsController:ControllerBase
     {
+        private readonly IRoomService _roomService;
+        // constructer
+        public RoomsController(IRoomService roomService)
+        {
+            _roomService = roomService;
+        }
+
         [HttpGet(Name =nameof(GetRooms))]
         public IActionResult GetRooms()
         {
             throw new NotImplementedException();
+        }
+
+        [HttpGet("{roomId}",Name= nameof(GetRoomById))]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200)]
+        public async Task<ActionResult<Room>> GetRoomById(Guid roomId)
+        {
+            var room = await _roomService.GetRoomAsync(roomId);
+            if (room == null) return NotFound();
+            return room;
         }
     }
 }

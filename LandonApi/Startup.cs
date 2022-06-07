@@ -1,9 +1,14 @@
+using LandonApi.Data;
 using LandonApi.Filters;
+using LandonApi.Infrastructure;
+using LandonApi.Models;
+using LandonApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -28,6 +33,22 @@ namespace LandonApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //add db context
+            services.AddDbContext<HotelAPIDbContext>(options => options.UseSqlServer(
+                        Configuration.GetConnectionString("DefaultConnection")
+            ));
+
+            /* THIS LINE OF CODE DOES COUPLE OF THINGS
+               IT PULLS THE PROPERTIES OUT OF THE INFO SECTION
+               IN APPSETTINGS.JSON FILE,AND CREATE A NEW INSTANCE
+               OF HOTELINFO WITH THOSE VALUES THEN IT WRAPS
+               THAT INSTANCE IN AN INTERFACE CALLED ioptions INTERFACE
+               INTO THE SERVICE CONTAINER WHIC MEANS IT CAN BE INJECTED INTO CONTROLLERS.
+              */
+              services.Configure<HotelInfo>(
+                Configuration.GetSection("Info")
+            );
+            services.AddScoped<IRoomService, DefaultRoomService>();
            /* services.AddMvc(options =>
             {
                 options.Filters.Add<JsonExceptionFilter>();
@@ -71,6 +92,7 @@ namespace LandonApi
                 options.AddPolicy("AllowMyApp",policy=>policy.AllowAnyOrigin());
 
             });
+            services.AddAutoMapper(options => options.AddProfile<MappingProfile>());
 
         }
 
