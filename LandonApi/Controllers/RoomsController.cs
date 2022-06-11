@@ -37,6 +37,7 @@ namespace LandonApi.Controllers
             return collection;
         }
 
+
         [HttpGet("{roomId}",Name= nameof(GetRoomById))]
         [ProducesResponseType(404)]
         [ProducesResponseType(200)]
@@ -45,6 +46,10 @@ namespace LandonApi.Controllers
             var room = await _roomService.GetRoomAsync(roomId);
             if (room == null) return NotFound();
             return room;
+        }
+        public async Task<ActionResult<Collection<Opening>>> GetAllRoomOpenings([FromQuery] PagingOptions pagingOptions = null)
+        {
+
         }
     }
 }
