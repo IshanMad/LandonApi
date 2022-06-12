@@ -16,13 +16,18 @@ namespace LandonApi.Controllers
     public class RoomsController:ControllerBase
     {
         private readonly IRoomService _roomService;
-        // constructer
-        public RoomsController(IRoomService roomService)
+        private readonly IOpeningService _openingService;
+
+        public RoomsController(
+            IRoomService roomService,
+            IOpeningService openingService)
         {
             _roomService = roomService;
+            _openingService = openingService;
         }
 
-        [HttpGet(Name =nameof(GetAllRooms))]
+        // GET /rooms
+        [HttpGet(Name = nameof(GetAllRooms))]
         [ProducesResponseType(200)]
         public async Task<ActionResult<Collection<Room>>> GetAllRooms()
         {
@@ -37,19 +42,36 @@ namespace LandonApi.Controllers
             return collection;
         }
 
+        // GET /rooms/openings
+        [HttpGet("openings", Name = nameof(GetAllRoomOpenings))]
+        [ProducesResponseType(200)]
+        public async Task<ActionResult<Collection<Opening>>> GetAllRoomOpenings(
+            [FromQuery] PagingOptions pagingOptions = null)
+        {
+            var openings = await _openingService.GetOpeningsAsync(pagingOptions);
 
-        [HttpGet("{roomId}",Name= nameof(GetRoomById))]
+            var collection = new PagedCollection<Opening>()
+            {
+                Self = Link.ToCollection(nameof(GetAllRoomOpenings)),
+                Value = openings.Items.ToArray(),
+                Size = openings.TotalSize,
+                Offset = pagingOptions.Offset.Value,
+                Limit = pagingOptions.Limit.Value
+            };
+
+            return collection;
+        }
+
+        // GET /rooms/{roomId}
+        [HttpGet("{roomId}", Name = nameof(GetRoomById))]
         [ProducesResponseType(404)]
         [ProducesResponseType(200)]
         public async Task<ActionResult<Room>> GetRoomById(Guid roomId)
         {
             var room = await _roomService.GetRoomAsync(roomId);
             if (room == null) return NotFound();
-            return room;
-        }
-        public async Task<ActionResult<Collection<Opening>>> GetAllRoomOpenings([FromQuery] PagingOptions pagingOptions = null)
-        {
 
+            return room;
         }
     }
 }

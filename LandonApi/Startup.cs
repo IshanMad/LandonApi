@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,20 +50,23 @@ namespace LandonApi
                 Configuration.GetSection("Info")
             );
             services.AddScoped<IRoomService, DefaultRoomService>();
-           /* services.AddMvc(options =>
-            {
-                options.Filters.Add<JsonExceptionFilter>();
-                options.Filters.Add<RequireHttpsOrCloseAttribute>();
-            });*/
-
-            //controllers
-            services.AddControllers();
-             services.AddControllers(options =>
+            services.AddScoped<IOpeningService, DefaultOpeningService>();
+            services.AddScoped<IBookingService, DefaultBookingService>();
+            services.AddScoped<IDateLogicService, DefaultDateLogicService>();
+            /* services.AddMvc(options =>
              {
                  options.Filters.Add<JsonExceptionFilter>();
                  options.Filters.Add<RequireHttpsOrCloseAttribute>();
-                 options.Filters.Add<LinkRewritingFilter>();
-             });
+             });*/
+
+            //controllers
+            services.AddControllers();
+            services.AddControllers(options =>
+            {
+                options.Filters.Add<JsonExceptionFilter>();
+                options.Filters.Add<RequireHttpsOrCloseAttribute>();
+                options.Filters.Add<LinkRewritingFilter>();
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "LandonApi", Version = "v1" });
