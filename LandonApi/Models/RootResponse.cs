@@ -1,6 +1,6 @@
 ﻿namespace LandonApi.Models
 {
-    public class RootResponse : Resource
+    public class RootResponse : PagedCollection<Room>
     {
         public Link Info { get; set; }
 
