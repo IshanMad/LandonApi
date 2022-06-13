@@ -49,6 +49,9 @@ namespace LandonApi
               services.Configure<HotelInfo>(
                 Configuration.GetSection("Info")
             );
+            //add default paging options
+            services.Configure<PagingOptions>(Configuration.GetSection("DefaultPagingOptions"));
+            //add services
             services.AddScoped<IRoomService, DefaultRoomService>();
             services.AddScoped<IOpeningService, DefaultOpeningService>();
             services.AddScoped<IBookingService, DefaultBookingService>();
@@ -98,6 +101,14 @@ namespace LandonApi
 
             });
             services.AddAutoMapper(options => options.AddProfile<MappingProfile>());
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var errorResponse = new ApiError(context.ModelState);
+                    return new BadRequestObjectResult(errorResponse);
+                };
+            });
 
         }
 

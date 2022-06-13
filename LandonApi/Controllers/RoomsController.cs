@@ -3,6 +3,7 @@ using LandonApi.Models;
 using LandonApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,13 +18,14 @@ namespace LandonApi.Controllers
     {
         private readonly IRoomService _roomService;
         private readonly IOpeningService _openingService;
-
+        private readonly PagingOptions _defaultPagingOptions;
         public RoomsController(
             IRoomService roomService,
-            IOpeningService openingService)
+            IOpeningService openingService,IOptions<PagingOptions> defaultPagingOptionsWrapper)
         {
             _roomService = roomService;
             _openingService = openingService;
+            _defaultPagingOptions = defaultPagingOptionsWrapper.Value;
         }
 
         // GET /rooms
@@ -48,6 +50,10 @@ namespace LandonApi.Controllers
         public async Task<ActionResult<Collection<Opening>>> GetAllRoomOpenings(
             [FromQuery] PagingOptions pagingOptions = null)
         {
+            // add default paging options
+            pagingOptions.Offset = pagingOptions.Offset ?? _defaultPagingOptions.Offset;
+            pagingOptions.Limit = pagingOptions.Limit ?? _defaultPagingOptions.Limit;
+
             var openings = await _openingService.GetOpeningsAsync(pagingOptions);
 
             var collection = new PagedCollection<Opening>()
